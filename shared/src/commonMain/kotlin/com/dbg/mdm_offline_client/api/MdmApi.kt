@@ -1,7 +1,6 @@
 package com.dbg.mdm_offline_client.api
 
 import io.ktor.client.call.body
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -10,18 +9,6 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
 class MdmApi {
-    suspend fun fetchStatus(baseUrl: String): StatusResponse {
-        val client = createHttpClient()
-        try {
-            val response = client.get(baseUrl.trimEnd('/') + "/status")
-            if (!response.status.isSuccess()) {
-                throw MdmApiException("HTTP ${response.status.value}")
-            }
-            return response.body()
-        } finally {
-            client.close()
-        }
-    }
 
     suspend fun register(baseUrl: String, request: RegisterRequest): RegisterResponse {
         val client = createHttpClient()
@@ -37,6 +24,24 @@ class MdmApi {
                 throw MdmRegisterRejectedException(body.message.ifBlank { "rejected" })
             }
             return body
+        } finally {
+            client.close()
+        }
+    }
+
+    /** Heartbeat + sparse device facts merge. Server responds 204 No Content. */
+    suspend fun updateInfo(baseUrl: String, request: UpdateInfoRequest) {
+        val client = createHttpClient()
+        try {
+            val response = client.post(baseUrl.trimEnd('/') + "/update_info") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
+            if (!response.status.isSuccess()) {
+                throw MdmApiException(
+                    response.bodyAsText().ifBlank { "HTTP ${response.status.value}" },
+                )
+            }
         } finally {
             client.close()
         }

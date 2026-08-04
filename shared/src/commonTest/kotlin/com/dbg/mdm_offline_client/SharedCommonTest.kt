@@ -16,6 +16,7 @@ class SharedCommonTest {
     fun protocolPortsMatchServer() {
         assertEquals(9876, ProtocolConstants.HTTP_PORT)
         assertEquals(9877, ProtocolConstants.UDP_PORT)
+        assertEquals(10 * 60 * 1000L, ProtocolConstants.UPDATE_INFO_INTERVAL_MS)
         assertEquals("MDM_DISCOVER", ProtocolConstants.DISCOVER_REQUEST)
         assertEquals("MDM_SERVER", ProtocolConstants.DISCOVER_RESPONSE_PREFIX)
     }

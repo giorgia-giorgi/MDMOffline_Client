@@ -4,6 +4,9 @@ object ProtocolConstants {
     const val HTTP_PORT = 9876
     const val UDP_PORT = 9877
 
+    /** How often the client POSTs `/update_info` while connected. */
+    const val UPDATE_INFO_INTERVAL_MS = 10 * 60 * 1000L
+
     /** Payload clients broadcast to ask for the server address. */
     const val DISCOVER_REQUEST = "MDM_DISCOVER"
 

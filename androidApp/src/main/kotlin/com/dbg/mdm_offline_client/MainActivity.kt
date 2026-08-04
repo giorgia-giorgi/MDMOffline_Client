@@ -11,6 +11,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // Application already inits the holder; keep for preview / process edge cases.
         AndroidContextHolder.init(applicationContext)
 
         setContent {

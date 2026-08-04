@@ -51,6 +51,7 @@ internal fun udpDiscover(): DiscoverReply? {
             )
             socket.send(response)
         }
+        // Todo Improve here
         val buffer = ByteArray(512)
         val request = DatagramPacket(buffer, buffer.size)
         socket.receive(request)

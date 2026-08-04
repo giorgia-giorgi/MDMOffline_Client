@@ -13,7 +13,7 @@ This is a Kotlin Multiplatform project for the **MDM Offline** mobile client (Co
 1. Run the **MDM Offline desktop console** on a PC on the same Wi‑Fi / LAN.
 2. Install and open this client on the phone/tablet.
 3. Ports used:
-   - **HTTP** `9876` — `GET /status`, `POST /register`
+   - **HTTP** `9876` — `GET /status`, `POST /register`, `POST /update_info` (runtime checks `/status` on launch; discovers only if needed; `/update_info` every 10 min with the same fallback)
    - **UDP discovery** `9877` — broadcast `MDM_DISCOVER`, reply `MDM_SERVER|<ipv4>|<httpPort>`
 
 Cleartext HTTP on the LAN is expected (no TLS in v1).

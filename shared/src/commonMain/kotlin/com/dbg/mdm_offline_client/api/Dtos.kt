@@ -18,6 +18,13 @@ data class RegisterResponse(
 )
 
 @Serializable
+data class UpdateInfoRequest(
+    val deviceId: String,
+    val appVersion: String? = null,
+    val facts: Map<String, String?> = emptyMap(),
+)
+
+@Serializable
 data class StatusDeviceDto(
     val id: String,
     val name: String,
