@@ -29,11 +29,11 @@
         </activity>
 
         <service
-            android:name="com.dbg.mdm_offline_client.background.MdmBackgroundService"
+            android:name="com.dbg.mdm_offline_client.domain.background.MdmBackgroundService"
             android:exported="false" />
 
         <receiver
-            android:name="com.dbg.mdm_offline_client.background.MdmBackgroundBootReceiver"
+            android:name="com.dbg.mdm_offline_client.domain.background.MdmBackgroundBootReceiver"
             android:exported="true"
             android:directBootAware="false">
             <intent-filter>

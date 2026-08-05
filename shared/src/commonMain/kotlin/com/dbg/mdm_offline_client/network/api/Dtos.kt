@@ -1,0 +1,41 @@
+package com.dbg.mdm_offline_client.network.api
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class RegisterRequest(
+    val deviceId: String,
+    val deviceName: String,
+    val platform: String,
+    val appVersion: String,
+)
+
+@Serializable
+data class RegisterResponse(
+    val serverId: String,
+    val accepted: Boolean,
+    val message: String,
+)
+
+@Serializable
+data class UpdateInfoRequest(
+    val deviceId: String,
+    val appVersion: String? = null,
+    val facts: Map<String, String?> = emptyMap(),
+)
+
+@Serializable
+data class StatusDeviceDto(
+    val id: String,
+    val name: String,
+    val platform: String,
+    val registeredAt: Long,
+)
+
+@Serializable
+data class StatusResponse(
+    val running: Boolean = false,
+    val lanAddress: String = "",
+    val devices: List<StatusDeviceDto> = emptyList(),
+    val onlineDeviceCount: Int = 0,
+)

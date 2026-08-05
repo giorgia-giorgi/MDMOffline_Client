@@ -1,10 +1,10 @@
 package com.dbg.mdm_offline_client
 
-import com.dbg.mdm_offline_client.i18n.stringsFor
-import com.dbg.mdm_offline_client.model.AppLanguage
-import com.dbg.mdm_offline_client.protocol.ProtocolConstants
-import com.dbg.mdm_offline_client.protocol.normalizeServerBaseUrl
-import com.dbg.mdm_offline_client.protocol.parseDiscoverReply
+import com.dbg.mdm_offline_client.presentation.i18n.stringsFor
+import com.dbg.mdm_offline_client.domain.model.AppLanguage
+import com.dbg.mdm_offline_client.network.protocol.ProtocolConstants
+import com.dbg.mdm_offline_client.network.protocol.normalizeServerBaseUrl
+import com.dbg.mdm_offline_client.network.protocol.parseDiscoverReply
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
