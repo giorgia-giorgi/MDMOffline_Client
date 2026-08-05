@@ -1,11 +1,26 @@
 package com.dbg.mdm_offline_client.protocol
 
 object ProtocolConstants {
+    /** Console HTTP API (`/status`, `/register`, `/update_info`). */
     const val HTTP_PORT = 9876
+
+    /** Console UDP discovery listen port. */
     const val UDP_PORT = 9877
+
+    /** Client-side HTTP server (`GET /ping`). */
+    const val CLIENT_HTTP_PORT = 9878
+
+    /** Client-side UDP socket (discover send/receive + future inbound messages). */
+    const val CLIENT_UDP_PORT = 9879
 
     /** How often the client POSTs `/update_info` while connected. */
     const val UPDATE_INFO_INTERVAL_MS = 10 * 60 * 1000L
+
+    /** How often the client probes `GET /status` while connected. */
+    const val STATUS_INTERVAL_MS = 60_000L
+
+    /** How long to wait for a `MDM_SERVER` reply after broadcasting discover. */
+    const val DISCOVER_TIMEOUT_MS = 2_000L
 
     /** Payload clients broadcast to ask for the server address. */
     const val DISCOVER_REQUEST = "MDM_DISCOVER"

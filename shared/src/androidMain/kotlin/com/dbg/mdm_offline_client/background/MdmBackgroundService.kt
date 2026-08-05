@@ -6,7 +6,8 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.PowerManager
 import com.dbg.mdm_offline_client.AndroidContextHolder
-import com.dbg.mdm_offline_client.settings.AppSettings
+import com.dbg.mdm_offline_client.net.startLocalServers
+import com.dbg.mdm_offline_client.update.StatusReporter
 import com.dbg.mdm_offline_client.update.UpdateInfoReporter
 import com.dbg.mdm_offline_client.update.requestIgnoreBatteryOptimizations
 import kotlinx.coroutines.CoroutineScope
@@ -14,17 +15,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 /**
- * Android parent sticky service. Owns the update-info child worker.
+ * Android parent sticky service. Owns status and update-info child workers.
  */
 class MdmBackgroundService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var statusJob: Job? = null
     private var updateInfoJob: Job? = null
     private var wakeLock: PowerManager.WakeLock? = null
 
@@ -39,11 +39,10 @@ class MdmBackgroundService : Service() {
             setReferenceCounted(false)
         }
 
+        startLocalServers()
         scope.launch {
-            ServerEnrollment.ensureConnected()
+            startChildWorkers()
         }
-
-        startChildWorkers()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
@@ -56,21 +55,32 @@ class MdmBackgroundService : Service() {
         super.onDestroy()
     }
 
-    private fun startChildWorkers() {
-        if (updateInfoJob?.isActive == true) return
-        updateInfoJob = scope.launch {
-            UpdateInfoWorker.runForever(
-                shouldContinue = { isActive },
-                send = { sendUpdateWithWakeLock() },
-            )
+    private suspend fun startChildWorkers() {
+        ServerEnrollment.ensureConnected()
+
+        if (statusJob?.isActive != true) {
+            statusJob = scope.launch {
+                StatusWorker.runForever(
+                    shouldContinue = { isActive },
+                    check = { withWakeLock { StatusReporter.checkOnce() } },
+                )
+            }
+        }
+        if (updateInfoJob?.isActive != true) {
+            updateInfoJob = scope.launch {
+                UpdateInfoWorker.runForever(
+                    shouldContinue = { isActive },
+                    send = { withWakeLock { UpdateInfoReporter.sendOnce() } },
+                )
+            }
         }
     }
 
-    private suspend fun sendUpdateWithWakeLock(): Boolean {
+    private suspend fun withWakeLock(block: suspend () -> Boolean): Boolean {
         val lock = wakeLock
         return try {
             lock?.acquire(60_000L)
-            UpdateInfoReporter.sendOnce()
+            block()
         } finally {
             if (lock?.isHeld == true) lock.release()
         }

@@ -1,8 +1,8 @@
 This is a Kotlin Multiplatform project for the **MDM Offline** mobile client (Compose Multiplatform), companion to the LAN-only desktop MDM console.
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application entry point.
 * [/shared](./shared/src) holds shared UI, networking, i18n, and settings (`commonMain` + platform sources).
 * [/androidApp](./androidApp) is the primary Android application (required for v1).
+* [/desktopApp](./desktopApp) is a JVM shell of the shared UI (dev / Windows client).
 
 ### Product
 
@@ -13,8 +13,10 @@ This is a Kotlin Multiplatform project for the **MDM Offline** mobile client (Co
 1. Run the **MDM Offline desktop console** on a PC on the same Wi‑Fi / LAN.
 2. Install and open this client on the phone/tablet.
 3. Ports used:
-   - **HTTP** `9876` — `GET /status`, `POST /register`, `POST /update_info` (runtime checks `/status` on launch; discovers only if needed; `/update_info` every 10 min with the same fallback)
-   - **UDP discovery** `9877` — broadcast `MDM_DISCOVER`, reply `MDM_SERVER|<ipv4>|<httpPort>`
+   - **HTTP** `9876` — console `GET /status`, `POST /register`, `POST /update_info` (runtime checks `/status` on launch; discovers only if needed; `/update_info` every 10 min with the same fallback)
+   - **UDP discovery** `9877` — client broadcasts `MDM_DISCOVER`, console replies `MDM_SERVER|<ipv4>|<httpPort>`
+   - **Client HTTP** `9878` — always-on `GET /ping`
+   - **Client UDP** `9879` — always-on socket used to send discover and listen for replies (and future inbound messages)
 
 Cleartext HTTP on the LAN is expected (no TLS in v1).
 
@@ -24,7 +26,6 @@ Use the run configurations in your IDE toolbar, or:
 
 - Android app: `./gradlew :androidApp:assembleDebug`
 - Desktop (JVM) shell of the shared UI: `./gradlew :desktopApp:run`
-- iOS app: open [/iosApp](./iosApp) in Xcode and run from there (UDP discovery is not implemented on iOS in v1 — use manual IP entry)
 
 ### Running tests
 

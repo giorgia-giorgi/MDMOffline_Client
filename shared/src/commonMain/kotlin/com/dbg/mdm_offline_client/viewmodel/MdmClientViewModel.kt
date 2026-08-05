@@ -82,7 +82,6 @@ class MdmClientViewModel(
 
     fun completeTutorial() {
         settings.tutorialCompleted = true
-        // BackgroundRuntime is waiting on this flag and will call ensureConnected.
     }
 
     fun onAppForeground() {

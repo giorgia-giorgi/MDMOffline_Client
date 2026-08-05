@@ -1,5 +1,6 @@
 package com.dbg.mdm_offline_client
 
+import com.dbg.mdm_offline_client.facts.OsFacts
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -13,8 +14,9 @@ class SharedLogicDesktopTest {
 
     @Test
     fun desktopFactsIncludeOsName() {
+        assertTrue(!OsFacts.osName().isNullOrBlank())
         val facts = collectDeviceFacts()
         assertTrue(facts.containsKey("os_name"))
-        assertTrue(!facts["os_name"].isNullOrBlank())
+        assertEquals(OsFacts.osName(), facts["os_name"])
     }
 }

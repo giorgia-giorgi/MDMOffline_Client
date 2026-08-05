@@ -1,10 +1,8 @@
 package com.dbg.mdm_offline_client.background
 
-import com.dbg.mdm_offline_client.settings.AppSettings
-import kotlinx.coroutines.delay
+import com.dbg.mdm_offline_client.net.startLocalServers
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * JVM/Windows parent: starts child background workers, then parks.
@@ -15,13 +13,10 @@ actual object BackgroundRuntime {
 
     actual fun start() {
         if (!started.compareAndSet(false, true)) return
+        startLocalServers()
         Thread(
             {
                 runBlocking {
-                    // todo avoid polling here
-                    while (!AppSettings().tutorialCompleted) {
-                        delay(1.seconds)
-                    }
                     ServerEnrollment.ensureConnected()
                 }
                 startChildWorkers()
@@ -35,6 +30,13 @@ actual object BackgroundRuntime {
     }
 
     private fun startChildWorkers() {
+        Thread(
+            { runBlocking { StatusWorker.runForever() } },
+            "mdm-status",
+        ).apply {
+            isDaemon = false
+            start()
+        }
         Thread(
             { runBlocking { UpdateInfoWorker.runForever() } },
             "mdm-update-info",

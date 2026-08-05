@@ -9,16 +9,6 @@ plugins {
 }
 
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "Shared"
-            isStatic = true
-        }
-    }
-
     jvm()
 
     android {
@@ -48,10 +38,12 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.ktor.client.cio)
+                implementation(libs.ktor.server.core)
+                implementation(libs.ktor.server.cio)
             }
         }
 
-        // Shared UDP discovery + CIO HTTP client for Android and Desktop.
+        // Shared UDP discovery + CIO HTTP client/server for Android and Desktop.
         androidMain {
             dependsOn(jvmAndroidMain)
             dependencies {
@@ -65,16 +57,6 @@ kotlin {
                 implementation(libs.kotlinx.coroutinesSwing)
             }
         }
-
-        // Keep iOS under common when the default hierarchy template is disabled.
-        val iosMain by creating {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.ktor.client.cio)
-            }
-        }
-        iosArm64Main.get().dependsOn(iosMain)
-        iosSimulatorArm64Main.get().dependsOn(iosMain)
 
         commonMain.dependencies {
             implementation(libs.compose.runtime)

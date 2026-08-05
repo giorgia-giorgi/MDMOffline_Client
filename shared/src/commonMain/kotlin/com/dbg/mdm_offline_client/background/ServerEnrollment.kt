@@ -13,6 +13,7 @@ import com.dbg.mdm_offline_client.newDeviceId
 import com.dbg.mdm_offline_client.platformLabel
 import com.dbg.mdm_offline_client.settings.AppSettings
 import com.dbg.mdm_offline_client.settings.ensureDeviceId
+import com.dbg.mdm_offline_client.update.UpdateInfoReporter
 import kotlinx.coroutines.sync.Mutex
 
 /**
@@ -35,8 +36,6 @@ object ServerEnrollment {
     ): Boolean {
         if (!ensureMutex.tryLock()) return false
         return try {
-            if (!settings.tutorialCompleted) return false
-
             val cached = settings.lastServerBaseUrl?.takeIf { it.isNotBlank() }
             if (cached != null) {
                 ConnectionStore.update {
@@ -124,6 +123,7 @@ object ServerEnrollment {
             )
             settings.lastServerBaseUrl = baseUrl
             ConnectionStore.markReachable(baseUrl, lastMessage = response.message)
+            UpdateInfoReporter.sendOnce(api = api, settings = settings, reconnectOnFailure = false)
             true
         } catch (e: MdmRegisterRejectedException) {
             ConnectionStore.update {
