@@ -8,7 +8,6 @@ import com.dbg.mdm_offline_client.domain.defaultDeviceName
 import com.dbg.mdm_offline_client.presentation.i18n.Strings
 import com.dbg.mdm_offline_client.presentation.i18n.stringsFor
 import com.dbg.mdm_offline_client.domain.model.ConnectionPhase
-import com.dbg.mdm_offline_client.domain.newDeviceId
 import com.dbg.mdm_offline_client.domain.platformLabel
 import com.dbg.mdm_offline_client.domain.settings.AppSettings
 import com.dbg.mdm_offline_client.domain.settings.ensureDeviceId
@@ -36,7 +35,7 @@ class MdmClientViewModel(
     private val settings: AppSettings = AppSettings(),
 ) : ViewModel() {
 
-    private val deviceId = settings.ensureDeviceId(::newDeviceId)
+    private val deviceId = settings.ensureDeviceId()
     private val deviceName = settings.deviceName.trim().ifEmpty {
         defaultDeviceName().also { settings.deviceName = it }
     }

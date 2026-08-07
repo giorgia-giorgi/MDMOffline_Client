@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mdm_fg_channel_name">MDM agent</string>
+    <string name="mdm_fg_channel_description">Keeps this device reachable by the local MDM console</string>
+    <string name="mdm_fg_notification_title">MDM Offline</string>
+    <string name="mdm_fg_notification_text">Running in the background</string>
+</resources>

@@ -6,7 +6,6 @@ import com.dbg.mdm_offline_client.domain.appVersionName
 import com.dbg.mdm_offline_client.domain.background.ConnectionStore
 import com.dbg.mdm_offline_client.domain.background.withEnsureConnected
 import com.dbg.mdm_offline_client.domain.facts.collectDeviceFacts
-import com.dbg.mdm_offline_client.domain.newDeviceId
 import com.dbg.mdm_offline_client.domain.settings.AppSettings
 import com.dbg.mdm_offline_client.domain.settings.ensureDeviceId
 
@@ -23,7 +22,7 @@ object UpdateInfoReporter {
     ): Boolean {
         suspend fun request(): Boolean {
             val baseUrl = settings.lastServerBaseUrl?.takeIf { it.isNotBlank() } ?: return false
-            val deviceId = settings.ensureDeviceId(::newDeviceId)
+            val deviceId = settings.ensureDeviceId()
             if (deviceId.isBlank()) return false
 
             val result = runCatching {

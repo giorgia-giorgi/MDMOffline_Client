@@ -4,6 +4,7 @@ import com.dbg.mdm_offline_client.network.api.isStatusReachable
 import com.dbg.mdm_offline_client.domain.background.ConnectionStore
 import com.dbg.mdm_offline_client.domain.background.withEnsureConnected
 import com.dbg.mdm_offline_client.domain.settings.AppSettings
+import com.dbg.mdm_offline_client.domain.settings.ensureDeviceId
 
 /**
  * Shared one-shot `GET /status` probe used by the background runtime.
@@ -15,7 +16,8 @@ object StatusReporter {
         settings: AppSettings = AppSettings(),
     ): Boolean = withEnsureConnected {
         val baseUrl = settings.lastServerBaseUrl?.takeIf { it.isNotBlank() } ?: return@withEnsureConnected false
-        val ok = isStatusReachable(baseUrl)
+        val deviceId = settings.ensureDeviceId()
+        val ok = isStatusReachable(baseUrl, deviceId)
         if (ok) {
             ConnectionStore.markReachable(baseUrl)
         } else {

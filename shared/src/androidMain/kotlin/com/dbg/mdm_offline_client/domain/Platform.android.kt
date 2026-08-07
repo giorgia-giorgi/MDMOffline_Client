@@ -1,7 +1,8 @@
 package com.dbg.mdm_offline_client.domain
 
 import android.os.Build
-import java.util.UUID
+import android.provider.Settings
+import com.dbg.mdm_offline_client.AndroidContextHolder
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -24,4 +25,10 @@ actual fun platformLabel(): String = "Android"
 
 actual fun appVersionName(): String = "1.0.0"
 
-actual fun newDeviceId(): String = UUID.randomUUID().toString()
+actual fun newDeviceId(): String {
+    val context = AndroidContextHolder.requireContext()
+    return Settings.Secure.getString(
+        context.contentResolver,
+        Settings.Secure.ANDROID_ID,
+    ).orEmpty().trim()
+}

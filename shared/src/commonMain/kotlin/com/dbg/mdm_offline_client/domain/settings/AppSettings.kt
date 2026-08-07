@@ -1,6 +1,7 @@
 package com.dbg.mdm_offline_client.domain.settings
 
 import com.dbg.mdm_offline_client.domain.model.AppLanguage
+import com.dbg.mdm_offline_client.domain.newDeviceId
 
 expect class AppSettings() {
     var tutorialCompleted: Boolean
@@ -13,10 +14,10 @@ expect class AppSettings() {
 }
 
 /** Ensures a stable deviceId exists and returns it. */
-fun AppSettings.ensureDeviceId(generate: () -> String): String {
+fun AppSettings.ensureDeviceId(): String {
     val existing = deviceId.trim()
     if (existing.isNotEmpty()) return existing
-    val created = generate()
+    val created = newDeviceId()
     deviceId = created
     return created
 }

@@ -9,5 +9,5 @@ expect fun platformLabel(): String
 /** App version string used in registration. */
 expect fun appVersionName(): String
 
-/** Generate a new UUID string for stable device identity. */
+/** Stable hardware device id (Android: ANDROID_ID, Desktop: machine serial). */
 expect fun newDeviceId(): String

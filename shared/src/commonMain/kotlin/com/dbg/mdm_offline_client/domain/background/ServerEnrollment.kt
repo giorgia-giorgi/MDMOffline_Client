@@ -9,7 +9,6 @@ import com.dbg.mdm_offline_client.domain.appVersionName
 import com.dbg.mdm_offline_client.domain.defaultDeviceName
 import com.dbg.mdm_offline_client.presentation.i18n.stringsFor
 import com.dbg.mdm_offline_client.domain.model.ConnectionPhase
-import com.dbg.mdm_offline_client.domain.newDeviceId
 import com.dbg.mdm_offline_client.domain.platformLabel
 import com.dbg.mdm_offline_client.domain.settings.AppSettings
 import com.dbg.mdm_offline_client.domain.settings.ensureDeviceId
@@ -36,12 +35,13 @@ object ServerEnrollment {
     ): Boolean {
         if (!ensureMutex.tryLock()) return false
         return try {
+            val deviceId = settings.ensureDeviceId()
             val cached = settings.lastServerBaseUrl?.takeIf { it.isNotBlank() }
             if (cached != null) {
                 ConnectionStore.update {
                     it.copy(serverBaseUrl = cached, busy = true, errorMessage = null)
                 }
-                if (isStatusReachable(cached)) {
+                if (isStatusReachable(cached, deviceId)) {
                     ConnectionStore.markReachable(cached)
                     return true
                 }
@@ -59,6 +59,7 @@ object ServerEnrollment {
     ): Boolean {
         val strings = stringsFor(settings.systemLanguage())
         val cached = settings.lastServerBaseUrl?.takeIf { it.isNotBlank() }
+        val deviceId = settings.ensureDeviceId()
 
         ConnectionStore.update {
             it.copy(
@@ -71,7 +72,7 @@ object ServerEnrollment {
             )
         }
 
-        val discovered = runCatching { discoverServerBaseUrl() }.getOrNull()
+        val discovered = runCatching { discoverServerBaseUrl(deviceId) }.getOrNull()
         if (discovered.isNullOrBlank()) {
             ConnectionStore.update {
                 it.copy(
@@ -95,7 +96,7 @@ object ServerEnrollment {
         settings: AppSettings,
     ): Boolean {
         val strings = stringsFor(settings.systemLanguage())
-        val deviceId = settings.ensureDeviceId(::newDeviceId)
+        val deviceId = settings.ensureDeviceId()
         var deviceName = settings.deviceName.trim()
         if (deviceName.isEmpty()) {
             deviceName = defaultDeviceName()
