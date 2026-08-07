@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dbg.mdm_offline_client.domain.model.ConnectionPhase
 import com.dbg.mdm_offline_client.presentation.ui.theme.CardCorner
+import com.dbg.mdm_offline_client.presentation.ui.theme.FluentAccent
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentCard
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentError
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentInfoBarBg
@@ -38,17 +40,14 @@ import com.dbg.mdm_offline_client.presentation.viewmodel.ClientUiState
 @Composable
 fun HomeScreen(
     state: ClientUiState,
-    onConnect: () -> Unit,
-    onHelp: () -> Unit,
+    onToggleAgent: () -> Unit,
 ) {
     val strings = state.strings
-    val connected = state.phase == ConnectionPhase.Connected
+    val agentOn = state.phase != ConnectionPhase.Idle
     val (statusLabel, statusColor) = when (state.phase) {
         ConnectionPhase.Connected -> strings.statusConnected to FluentSuccess
         ConnectionPhase.Discovering -> strings.statusSearching to FluentTextSecondary
-        ConnectionPhase.Registering -> strings.statusRegistering to FluentTextSecondary
-        ConnectionPhase.Error -> strings.statusNotConnected to FluentError
-        ConnectionPhase.Idle -> strings.statusNotConnected to FluentTextSecondary
+        ConnectionPhase.Idle -> strings.statusIdle to FluentTextSecondary
     }
 
     Column(
@@ -89,12 +88,20 @@ fun HomeScreen(
                 .padding(20.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clip(CircleShape)
-                        .background(statusColor),
-                )
+                if (state.phase == ConnectionPhase.Discovering) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = FluentAccent,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(statusColor),
+                    )
+                }
                 Spacer(Modifier.size(10.dp))
                 Text(
                     text = statusLabel,
@@ -103,7 +110,9 @@ fun HomeScreen(
                 )
             }
             Spacer(Modifier.height(5.dp))
-            StatusRow(strings.serverAddress, state.serverBaseUrl ?: strings.dash)
+            if (state.phase == ConnectionPhase.Connected) {
+                StatusRow(strings.serverAddress, state.serverBaseUrl ?: strings.dash)
+            }
             StatusRow(strings.deviceLabel, state.deviceName)
             StatusRow(strings.platformLabel, state.platform)
             StatusRow(
@@ -120,7 +129,7 @@ fun HomeScreen(
             }
         }
 
-        if (state.errorMessage != null) {
+        if (state.errorMessage != null && agentOn) {
             Spacer(Modifier.height(12.dp))
             Text(
                 text = state.errorMessage,
@@ -135,12 +144,17 @@ fun HomeScreen(
             )
         }
 
-        if (!connected) {
-            Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
+        if (agentOn) {
+            SecondaryButton(
+                text = strings.agentStop,
+                onClick = onToggleAgent,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } else {
             PrimaryButton(
-                text = strings.connect,
-                onClick = onConnect,
-                enabled = !state.busy,
+                text = strings.agentStart,
+                onClick = onToggleAgent,
                 modifier = Modifier.fillMaxWidth(),
             )
         }

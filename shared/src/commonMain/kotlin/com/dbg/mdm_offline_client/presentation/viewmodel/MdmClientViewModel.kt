@@ -2,6 +2,7 @@ package com.dbg.mdm_offline_client.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dbg.mdm_offline_client.domain.background.BackgroundRuntime
 import com.dbg.mdm_offline_client.domain.background.ConnectionStore
 import com.dbg.mdm_offline_client.domain.background.ServerEnrollment
 import com.dbg.mdm_offline_client.domain.defaultDeviceName
@@ -10,6 +11,7 @@ import com.dbg.mdm_offline_client.presentation.i18n.stringsFor
 import com.dbg.mdm_offline_client.domain.model.ConnectionPhase
 import com.dbg.mdm_offline_client.domain.platformLabel
 import com.dbg.mdm_offline_client.domain.settings.AppSettings
+import com.dbg.mdm_offline_client.domain.settings.agentEnabled
 import com.dbg.mdm_offline_client.domain.settings.ensureDeviceId
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +21,7 @@ import kotlinx.coroutines.launch
 
 data class ClientUiState(
     val strings: Strings = stringsFor(com.dbg.mdm_offline_client.domain.model.AppLanguage.ENGLISH),
-    val phase: ConnectionPhase = ConnectionPhase.Idle,
+    val phase: ConnectionPhase = ConnectionPhase.Discovering,
     val serverBaseUrl: String? = null,
     val deviceId: String = "",
     val deviceName: String = "",
@@ -30,7 +32,7 @@ data class ClientUiState(
     val busy: Boolean = false,
 )
 
-/** UI mirror of [ConnectionStore]. Also triggers [ServerEnrollment.ensureConnected] on foreground / Connect. */
+/** UI mirror of [ConnectionStore]. Toggles the MDM agent between Idle and Discovering. */
 class MdmClientViewModel(
     private val settings: AppSettings = AppSettings(),
 ) : ViewModel() {
@@ -62,7 +64,7 @@ class MdmClientViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ClientUiState(
                 strings = strings,
-                phase = ConnectionPhase.Idle,
+                phase = settings.connectionPhase,
                 serverBaseUrl = settings.lastServerBaseUrl,
                 deviceId = deviceId,
                 deviceName = deviceName,
@@ -74,9 +76,7 @@ class MdmClientViewModel(
         get() = settings.tutorialCompleted
 
     init {
-        ConnectionStore.update {
-            it.copy(serverBaseUrl = settings.lastServerBaseUrl)
-        }
+        ConnectionStore.restoreFrom(settings)
     }
 
     fun completeTutorial() {
@@ -84,10 +84,26 @@ class MdmClientViewModel(
     }
 
     fun onAppForeground() {
+        if (!settings.agentEnabled) return
         viewModelScope.launch { ServerEnrollment.ensureConnected() }
     }
 
-    fun connect() {
-        viewModelScope.launch { ServerEnrollment.ensureConnected() }
+    /** Switches between Idle (agent off) and Discovering (agent on + background service). */
+    fun toggleAgent() {
+        if (settings.agentEnabled) {
+            stopAgent()
+        } else {
+            startAgent()
+        }
+    }
+
+    private fun startAgent() {
+        ConnectionStore.markDiscovering(settings = settings, busy = true)
+        BackgroundRuntime.start()
+    }
+
+    private fun stopAgent() {
+        ConnectionStore.markIdle(settings = settings)
+        BackgroundRuntime.stop()
     }
 }

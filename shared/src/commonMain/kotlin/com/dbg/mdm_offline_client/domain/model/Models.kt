@@ -19,7 +19,5 @@ enum class AppLanguage(val code: String) {
 enum class ConnectionPhase {
     Idle,
     Discovering,
-    Registering,
     Connected,
-    Error,
 }

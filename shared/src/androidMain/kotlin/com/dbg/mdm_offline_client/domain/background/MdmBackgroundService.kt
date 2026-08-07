@@ -127,5 +127,9 @@ class MdmBackgroundService : Service() {
             val intent = Intent(context, MdmBackgroundService::class.java)
             context.startForegroundService(intent)
         }
+
+        fun stop(context: Context) {
+            context.stopService(Intent(context, MdmBackgroundService::class.java))
+        }
     }
 }

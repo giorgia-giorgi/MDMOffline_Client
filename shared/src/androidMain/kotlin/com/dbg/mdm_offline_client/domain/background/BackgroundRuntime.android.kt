@@ -6,4 +6,8 @@ actual object BackgroundRuntime {
     actual fun start() {
         MdmBackgroundService.start(AndroidContextHolder.requireContext())
     }
+
+    actual fun stop() {
+        MdmBackgroundService.stop(AndroidContextHolder.requireContext())
+    }
 }

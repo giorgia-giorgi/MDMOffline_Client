@@ -4,12 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -17,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -27,11 +24,9 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.dbg.mdm_offline_client.presentation.navigation.AppRoute
 import com.dbg.mdm_offline_client.presentation.navigation.appNavSavedStateConfiguration
-import com.dbg.mdm_offline_client.presentation.ui.HelpScreen
 import com.dbg.mdm_offline_client.presentation.ui.HomeScreen
 import com.dbg.mdm_offline_client.presentation.ui.TutorialScreen
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentAccent
-import com.dbg.mdm_offline_client.presentation.ui.theme.FluentCard
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentLayerDefault
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentOnAccent
 import com.dbg.mdm_offline_client.presentation.ui.theme.MdmOfflineTheme
@@ -72,7 +67,7 @@ fun App(viewModel: MdmClientViewModel = remember { MdmClientViewModel() }) {
                                 backStack.add(AppRoute.Home)
                             },
                             icon = {},
-                            label = { Text("Home") },
+                            label = { Text(state.strings.home) },
                             colors = NavigationBarItemDefaults.colors(
                                 indicatorColor = FluentAccent,
                             )
@@ -86,19 +81,6 @@ fun App(viewModel: MdmClientViewModel = remember { MdmClientViewModel() }) {
                             },
                             icon = { },
                             label = { Text("Tutorial") },
-                            colors = NavigationBarItemDefaults.colors(
-                                indicatorColor = FluentAccent
-                            )
-                        )
-
-                        NavigationBarItem(
-                            selected = backStack.lastOrNull() == AppRoute.Help,
-                            onClick = {
-                                backStack.clear()
-                                backStack.add(AppRoute.Help)
-                            },
-                            icon = { },
-                            label = { Text("Aiuto") },
                             colors = NavigationBarItemDefaults.colors(
                                 indicatorColor = FluentAccent
                             )
@@ -131,18 +113,7 @@ fun App(viewModel: MdmClientViewModel = remember { MdmClientViewModel() }) {
                         entry<AppRoute.Home> {
                             HomeScreen(
                                 state = state,
-                                onConnect = viewModel::connect,
-                                onHelp = { backStack.add(AppRoute.Help) },
-                            )
-                        }
-                        entry<AppRoute.Help> {
-                            HelpScreen(
-                                strings = state.strings,
-                                onShowTutorial = {
-                                    backStack.clear()
-                                    backStack.add(AppRoute.Tutorial)
-                                },
-                                onBack = { backStack.removeLastOrNull() },
+                                onToggleAgent = viewModel::toggleAgent,
                             )
                         }
                     },

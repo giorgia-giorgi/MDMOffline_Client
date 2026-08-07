@@ -6,21 +6,23 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * JVM/Windows parent: starts child background workers, then parks.
- * Call [start] from `main` and forget.
  */
 actual object BackgroundRuntime {
     private val started = AtomicBoolean(false)
+    private val running = AtomicBoolean(false)
+    private var parentThread: Thread? = null
 
     actual fun start() {
         if (!started.compareAndSet(false, true)) return
+        running.set(true)
         startLocalServers()
-        Thread(
+        parentThread = Thread(
             {
                 runBlocking {
                     ServerEnrollment.ensureConnected()
                 }
-                startChildWorkers()
-                parkForever()
+                if (running.get()) startChildWorkers()
+                parkWhileRunning()
             },
             "mdm-background",
         ).apply {
@@ -29,16 +31,31 @@ actual object BackgroundRuntime {
         }
     }
 
+    actual fun stop() {
+        running.set(false)
+        parentThread?.interrupt()
+        parentThread = null
+        started.set(false)
+    }
+
     private fun startChildWorkers() {
         Thread(
-            { runBlocking { StatusWorker.runForever() } },
+            {
+                runBlocking {
+                    StatusWorker.runForever(shouldContinue = { running.get() })
+                }
+            },
             "mdm-status",
         ).apply {
             isDaemon = false
             start()
         }
         Thread(
-            { runBlocking { UpdateInfoWorker.runForever() } },
+            {
+                runBlocking {
+                    UpdateInfoWorker.runForever(shouldContinue = { running.get() })
+                }
+            },
             "mdm-update-info",
         ).apply {
             isDaemon = false
@@ -46,10 +63,10 @@ actual object BackgroundRuntime {
         }
     }
 
-    private fun parkForever() {
-        while (!Thread.currentThread().isInterrupted) {
+    private fun parkWhileRunning() {
+        while (running.get() && !Thread.currentThread().isInterrupted) {
             try {
-                Thread.sleep(Long.MAX_VALUE)
+                Thread.sleep(1_000L)
             } catch (_: InterruptedException) {
                 break
             }

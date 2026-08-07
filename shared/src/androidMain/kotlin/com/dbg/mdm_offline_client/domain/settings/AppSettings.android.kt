@@ -3,6 +3,7 @@ package com.dbg.mdm_offline_client.domain.settings
 import android.content.Context
 import com.dbg.mdm_offline_client.AndroidContextHolder
 import com.dbg.mdm_offline_client.domain.model.AppLanguage
+import com.dbg.mdm_offline_client.domain.model.ConnectionPhase
 import java.util.Locale
 
 actual class AppSettings actual constructor() {
@@ -35,6 +36,14 @@ actual class AppSettings actual constructor() {
             prefs.edit().putString(KEY_LAST_SERVER, value).apply()
         }
 
+    actual var connectionPhase: ConnectionPhase
+        get() = prefs.getString(KEY_PHASE, null)
+            ?.let { raw -> ConnectionPhase.entries.find { it.name == raw } }
+            ?: ConnectionPhase.Discovering
+        set(value) {
+            prefs.edit().putString(KEY_PHASE, value.name).apply()
+        }
+
     actual fun systemLanguage(): AppLanguage =
         AppLanguage.fromLocaleTag(Locale.getDefault().toLanguageTag())
 
@@ -44,5 +53,6 @@ actual class AppSettings actual constructor() {
         const val KEY_DEVICE_ID = "deviceId"
         const val KEY_DEVICE_NAME = "deviceName"
         const val KEY_LAST_SERVER = "lastServerBaseUrl"
+        const val KEY_PHASE = "connectionPhase"
     }
 }

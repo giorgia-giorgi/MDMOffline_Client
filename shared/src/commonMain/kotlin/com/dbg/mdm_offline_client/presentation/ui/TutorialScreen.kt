@@ -1,7 +1,6 @@
 package com.dbg.mdm_offline_client.presentation.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,20 +29,18 @@ import com.dbg.mdm_offline_client.presentation.i18n.Strings
 import com.dbg.mdm_offline_client.presentation.ui.theme.CardCorner
 import com.dbg.mdm_offline_client.presentation.ui.theme.ControlCorner
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentAccent
-import com.dbg.mdm_offline_client.presentation.ui.theme.FluentCard
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentLayerDefault
-import com.dbg.mdm_offline_client.presentation.ui.theme.FluentNavSelected
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentStroke
 import com.dbg.mdm_offline_client.presentation.ui.theme.FluentText
-import com.dbg.mdm_offline_client.presentation.ui.theme.FluentTextSecondary
 
 @Composable
 fun TutorialScreen(
     strings: Strings,
     onFinished: () -> Unit,
 ) {
-    var step by remember { mutableStateOf(0) }
+    var step by remember { mutableIntStateOf(0) }
     val steps = listOf(
+        strings.tutorialTitle to strings.tutorialWelcome,
         strings.tutorialStep1Title to strings.tutorialStep1Body,
         strings.tutorialStep2Title to strings.tutorialStep2Body,
         strings.tutorialStep3Title to strings.tutorialStep3Body,
@@ -56,8 +52,7 @@ fun TutorialScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(FluentLayerDefault)
-            .verticalScroll(rememberScrollState())
-            .padding(30.dp),
+            .padding(20.dp),
     ) {
         Text(
             text = strings.appTitle,
@@ -76,25 +71,11 @@ fun TutorialScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .weight(1f)
                 .clip(CardCorner)
                 .background(FluentLayerDefault)
-                //.border(1.dp, FluentStroke, CardCorner)
                 .padding(20.dp),
         ) {
-            Text(
-                text = strings.tutorialTitle,
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = strings.tutorialWelcome,
-                style = MaterialTheme.typography.bodyLarge,
-                color = FluentText,
-            )
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = FluentText)
-            Spacer(Modifier.height(16.dp))
-
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 steps.indices.forEach { index ->
                     Box(
@@ -119,17 +100,21 @@ fun TutorialScreen(
                 style = MaterialTheme.typography.titleLarge,
             )
             Spacer(Modifier.height(16.dp))
+            // Fixed-height body slot so nav buttons stay at a stable Y (higher than screen bottom).
             Text(
                 text = steps[step].second,
                 style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .verticalScroll(rememberScrollState()),
             )
             Spacer(Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AccentTextButton(text = strings.skip, onClick = onFinished)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (step > 0) {
                         SecondaryButton(
@@ -147,22 +132,7 @@ fun TutorialScreen(
                     )
                 }
             }
+            Spacer(Modifier.weight(1f))
         }
-
-       // Spacer(Modifier.height(12.dp))
-       // steps.forEachIndexed { index, (title, _) ->
-       //     val active = index == step
-        //    Text(
-        //        text = "${index + 1}. $title",
-        //        style = MaterialTheme.typography.bodyMedium,
-        //color = if (active) FluentAccent else FluentTextSecondary,
-        //        fontWeight = if (active) FontWeight.SemiBold else FontWeight.Normal,
-        //        modifier = Modifier
-        //            .fillMaxWidth()
-        //            .clip(ControlCorner)
-        //            .background( FluentCard)
-        //            .padding(horizontal = 10.dp, vertical = 8.dp),
-        //)
-        //}
     }
 }

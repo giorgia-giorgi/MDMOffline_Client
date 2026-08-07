@@ -13,9 +13,6 @@ sealed interface AppRoute : NavKey {
 
     @Serializable
     data object Home : AppRoute
-
-    @Serializable
-    data object Help : AppRoute
 }
 
 val appNavSavedStateConfiguration = SavedStateConfiguration {
@@ -23,7 +20,6 @@ val appNavSavedStateConfiguration = SavedStateConfiguration {
         polymorphic(NavKey::class) {
             subclass(AppRoute.Tutorial::class, AppRoute.Tutorial.serializer())
             subclass(AppRoute.Home::class, AppRoute.Home.serializer())
-            subclass(AppRoute.Help::class, AppRoute.Help.serializer())
         }
     }
 }

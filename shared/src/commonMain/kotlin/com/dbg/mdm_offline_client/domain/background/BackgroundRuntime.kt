@@ -1,14 +1,15 @@
 package com.dbg.mdm_offline_client.domain.background
 
 /**
- * Parent background runtime. Starts once from process entry
- * (`main` on JVM, `Application.onCreate` on Android) and owns all
- * long-lived child workers. Must not be started from UI / ViewModel.
+ * Parent background runtime for the MDM agent.
+ * Start when leaving [com.dbg.mdm_offline_client.domain.model.ConnectionPhase.Idle];
+ * stop when returning to Idle.
  *
- * On start: brings up always-on [com.dbg.mdm_offline_client.network.local.TcpServer] and
+ * On start: brings up [com.dbg.mdm_offline_client.network.local.TcpServer] and
  * [com.dbg.mdm_offline_client.network.local.UdpServer], then [ServerEnrollment.ensureConnected],
  * then the `/status` and `/update_info` child workers.
  */
 expect object BackgroundRuntime {
     fun start()
+    fun stop()
 }
