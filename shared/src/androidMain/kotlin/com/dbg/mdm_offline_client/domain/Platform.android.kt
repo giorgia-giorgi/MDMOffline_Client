@@ -10,6 +10,8 @@ class AndroidPlatform : Platform {
 
 actual fun getPlatform(): Platform = AndroidPlatform()
 
+actual fun isJvmPlatform(): Boolean = false
+
 actual fun defaultDeviceName(): String {
     val manufacturer = Build.MANUFACTURER.orEmpty().trim()
     val model = Build.MODEL.orEmpty().trim()

@@ -41,6 +41,7 @@ import com.dbg.mdm_offline_client.presentation.viewmodel.ClientUiState
 fun HomeScreen(
     state: ClientUiState,
     onToggleAgent: () -> Unit,
+    showHeader: Boolean = true,
 ) {
     val strings = state.strings
     val agentOn = state.phase != ConnectionPhase.Idle
@@ -53,31 +54,32 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(FluentLayerDefault)
+            .background(if (showHeader) FluentLayerDefault else FluentCard)
             .verticalScroll(rememberScrollState())
-            .padding(20.dp),
+            .padding(if (showHeader) 20.dp else 24.dp),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = strings.appTitle,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = strings.appSubtitle,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = FluentTextSecondary,
-                )
+        if (showHeader) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = strings.appTitle,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = strings.appSubtitle,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = FluentTextSecondary,
+                    )
+                }
             }
+
+            Spacer(Modifier.height(20.dp))
         }
-        Spacer(Modifier.height(12.dp))
-        PrivacyBadge(strings.privacyBadge)
-        Spacer(Modifier.height(20.dp))
 
         Column(
             modifier = Modifier

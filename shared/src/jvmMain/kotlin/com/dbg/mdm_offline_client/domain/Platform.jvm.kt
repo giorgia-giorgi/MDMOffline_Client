@@ -6,6 +6,8 @@ class JVMPlatform : Platform {
 
 actual fun getPlatform(): Platform = JVMPlatform()
 
+actual fun isJvmPlatform(): Boolean = true
+
 actual fun defaultDeviceName(): String =
     System.getProperty("user.name")?.takeIf { it.isNotBlank() }?.let { "$it PC" }
         ?: "Desktop device"
