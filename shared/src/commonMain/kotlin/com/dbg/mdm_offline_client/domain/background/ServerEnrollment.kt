@@ -126,6 +126,11 @@ object ServerEnrollment {
         }
 
         return try {
+            println(baseUrl)
+            println(deviceId)
+            println(deviceName)
+            println(platformLabel())
+            println(appVersionName())
             val response = api.register(
                 baseUrl = baseUrl,
                 request = RegisterRequest(

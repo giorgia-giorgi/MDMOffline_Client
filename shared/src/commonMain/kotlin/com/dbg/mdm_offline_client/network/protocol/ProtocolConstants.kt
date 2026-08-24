@@ -7,7 +7,7 @@ object ProtocolConstants {
     /** Console UDP discovery listen port. */
     const val UDP_PORT = 9877
 
-    /** Client-side HTTP server (`GET /ping`). */
+    /** Client-side HTTP server. */
     const val CLIENT_HTTP_PORT = 9878
 
     /** Client-side UDP socket (discover send/receive + future inbound messages). */
