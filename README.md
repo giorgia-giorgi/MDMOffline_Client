@@ -1,42 +1,28 @@
-This is a Kotlin Multiplatform project for the **MDM Offline** mobile client (Compose Multiplatform), companion to the LAN-only desktop MDM console.
+# MDM Offline: Device client
 
-* [/shared](./shared/src) holds shared UI, networking, i18n, and settings (`commonMain` + platform sources).
-* [/androidApp](./androidApp) is the primary Android application (required for v1).
-* [/desktopApp](./desktopApp) is a JVM shell of the shared UI (dev / Windows client).
+## The platform
 
-### Product
+**MDM Offline** is a lightweight, private mobile device management system that stays entirely on your local network. There is no cloud account, and management data does not leave your office, home, or team network. Devices do not need to be enrolled as managed devices, and no managed profiles are required.
 
-**MDM Offline** keeps device management on your local network — no cloud accounts. The PC console runs an embedded HTTP server; this app discovers it, registers the device, and shows connection status.
+It is made of two applications that work together:
 
-### Requirements to connect
+- **Desktop console**: the control room on a PC
+- **Device client** (this project): the companion app on each phone or tablet you want to oversee
 
-1. Run the **MDM Offline desktop console** on a PC on the same Wi‑Fi / LAN.
-2. Install and open this client on the phone/tablet.
-3. Ports used:
-   - **HTTP** `9876` — console `GET /status`, `POST /register`, `POST /update_info` (runtime checks `/status` on launch; discovers only if needed; `/update_info` every 10 min with the same fallback)
-   - **UDP discovery** `9877` — client broadcasts `MDM_DISCOVER`, console replies `MDM_SERVER|<ipv4>|<httpPort>`
-   - **Client HTTP** `9878` — always-on `GET /ping`
-   - **Client UDP** `9879` — always-on socket used to send discover and listen for replies (and future inbound messages)
+Put the PC and the devices on the same Wi-Fi or office network, keep the console running, and enrolled devices appear on the PC. From there you can see which devices are online, inspect their status, and keep them under local watch.
 
-Cleartext HTTP on the LAN is expected (no TLS in v1).
+The product is designed for small fleets: an office, a household, or a shared set of phones and tablets where tighter control matters and a public cloud MDM is more than you want.
 
-### Running the apps
+The interface is available in English and Italian.
 
-Use the run configurations in your IDE toolbar, or:
+## This project
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- Desktop (JVM) shell of the shared UI: `./gradlew :desktopApp:run`
+This repository is the **device client**: the app you install on each phone or tablet that should be listed on the PC console.
 
-### Running tests
+On first launch it explains what the platform is for and that management stays on the LAN. After that it finds the desktop console on your network, registers this device, and shows whether you are connected and listed on the PC.
 
-- Android host tests: `./gradlew :shared:testAndroidHostTest`
-- Desktop tests: `./gradlew :shared:jvmTest`
-- Common protocol/i18n tests: `./gradlew :shared:jvmTest`
+The client can keep running in the background, so you can leave the app and the device still appears online in the console. You can also pause discovery when you do not want this device to check in.
 
-### v1 scope
+The Android app is the primary client. A desktop companion is included for development and for using the same experience on a Windows machine.
 
-Onboarding, LAN discovery, register, home status, manual server entry, EN/IT strings, local persistence of `deviceId` / tutorial / last server URL.
-
-Out of scope: lock/wipe/policies/commands, auth, dark theme, Device Owner APIs.
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html).
+To enroll a device, keep the MDM Offline desktop console running on a PC on the same network, then open this app.
